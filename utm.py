@@ -2,19 +2,35 @@ import streamlit as st
 import pandas as pd
 import os
 import re
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+import io
 
-# Хранилище utm-ссылок
-# Путь к CSV
-CSV_PATH = "utm_history.csv"
+# Инициализация Google Sheets
+SPREADSHEET_ID = "ТВОЙ_SPREADSHEET_ID"
+SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Хранилище utm-ссылок
+def get_worksheet():
+    creds_dict = st.secrets["gcp_service_account"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
+    client = gspread.authorize(creds)
+    sheet = client.open_by_key(SPREADSHEET_ID)
+    return sheet.sheet1
+
+def load_utm_links():
+    ws = get_worksheet()
+    return ws.get_all_records()
+
+def save_utm_links(data):
+    ws = get_worksheet()
+    ws.clear()
+    ws.append_row(["utm_source", "utm_medium", "utm_campaign", "utm_url"])
+    for row in data:
+        ws.append_row([row["utm_source"], row["utm_medium"], row["utm_campaign"], row["utm_url"]])
+
 if 'utm_links' not in st.session_state:
-    if os.path.exists(CSV_PATH):
-        st.session_state.utm_links = pd.read_csv(CSV_PATH).to_dict(orient="records")
-    else:
-        st.session_state.utm_links = []
+    st.session_state.utm_links = load_utm_links()
         
-
 st.title("UTM Генератор и Валидатор")
 
 # Валидация одного поля
@@ -67,7 +83,7 @@ with st.form("utm_form"):
                 "utm_campaign": utm_campaign,
                 "utm_url": utm_url
             })
-            pd.DataFrame(st.session_state.utm_links).to_csv(CSV_PATH, index=False)
+            save_utm_links(st.session_state.utm_links)
 
 # Таблица результатов
 if st.session_state.utm_links:
