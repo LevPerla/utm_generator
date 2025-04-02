@@ -7,7 +7,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import io
 
 # Инициализация Google Sheets
-SPREADSHEET_ID = "ТВОЙ_SPREADSHEET_ID"
+SPREADSHEET_ID = "1eQiCqwXu49xEa3leUc8fgkN05hom_K0sbwK9868V4Zc"
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
 def get_worksheet():
