@@ -47,6 +47,17 @@ with st.form("utm_form"):
             for e in errors:
                 st.error(e)
         else:
+            # Проверка на дублирование
+            is_duplicate = any(
+                row["utm_source"] == utm_source and
+                row["utm_medium"] == utm_medium and
+                row["utm_campaign"] == utm_campaign
+                for row in st.session_state.utm_links
+            )
+            if is_duplicate:
+                st.warning("Такая UTM комбинация уже существует в таблице.")
+                st.stop()
+
             utm_url = f"?utm_source={utm_source}&utm_medium={utm_medium}&utm_campaign={utm_campaign}"
             st.success("UTM успешно сгенерирован!")
             st.code(utm_url)
