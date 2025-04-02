@@ -4,11 +4,16 @@ import os
 import re
 
 # Хранилище utm-ссылок
+# Путь к CSV
+CSV_PATH = "utm_history.csv"
+
+# Хранилище utm-ссылок
 if 'utm_links' not in st.session_state:
-    st.session_state.utm_links = []
-    CSV_PATH = "utm_history.csv"
     if os.path.exists(CSV_PATH):
         st.session_state.utm_links = pd.read_csv(CSV_PATH).to_dict(orient="records")
+    else:
+        st.session_state.utm_links = []
+        
 
 st.title("UTM Генератор и Валидатор")
 
